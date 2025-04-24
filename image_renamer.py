@@ -20,6 +20,8 @@ class ImageRenamerApp:
         self.default_dir = ""
         self.used_names = set()
         self.name_buttons = {}  # Dictionary to store references to buttons
+        self.file_history = []  # Track original filenames for navigation
+        self.renamed_files = {}  # Map original filenames to new names
         
         # Load configuration
         self.load_config()
@@ -142,6 +144,24 @@ class ImageRenamerApp:
             self.dir_label.config(text=self.image_dir)
             self.load_images()
     
+    def refresh_directory(self):
+        """Refresh the list of image files from the directory"""
+        if not self.image_dir:
+            return False
+            
+        # Get the extensions from the original loading function
+        image_extensions = ('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff')
+        
+        # Refresh the list of files
+        try:
+            self.image_files = [f for f in os.listdir(self.image_dir) 
+                               if os.path.isfile(os.path.join(self.image_dir, f)) 
+                               and f.lower().endswith(image_extensions)]
+            return True
+        except Exception as e:
+            print(f"Error refreshing directory: {str(e)}")
+            return False
+    
     def load_images(self):
         """Load all image files from the selected directory"""
         image_extensions = ('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff')
@@ -154,6 +174,10 @@ class ImageRenamerApp:
             return
         
         self.current_index = 0
+        
+        # Reset navigation history
+        self.file_history = self.image_files.copy()
+        self.renamed_files = {}
         
         # Reset used names when loading new images
         self.used_names = set()
@@ -310,10 +334,33 @@ class ImageRenamerApp:
         self.status_label.config(
             text=f"Image {self.current_index + 1} of {len(self.image_files)}: {current_filename}"
         )
+        
+        # Update nav button states
+        self.update_nav_buttons()
+    
+    def update_nav_buttons(self):
+        """Update navigation button states based on current position"""
+        # Enable/disable previous button
+        if self.current_index <= 0:
+            self.prev_btn.config(state=tk.DISABLED)
+        else:
+            self.prev_btn.config(state=tk.NORMAL)
+        
+        # Enable/disable next button
+        if self.current_index >= len(self.image_files) - 1:
+            self.next_btn.config(state=tk.DISABLED)
+        else:
+            self.next_btn.config(state=tk.NORMAL)
     
     def display_image(self, image_path):
         """Load and display an image in the GUI"""
         try:
+            # Check if file exists first
+            if not os.path.exists(image_path):
+                self.image_label.config(image=None)
+                self.image_label.config(text=f"Error: File not found\n{image_path}")
+                return
+                
             # Open the image file
             img = Image.open(image_path)
             
@@ -366,8 +413,14 @@ class ImageRenamerApp:
             dest_path = os.path.join(self.image_dir, new_name)
         
         try:
+            # Store the original filename for navigation history
+            original_filename = self.image_files[self.current_index]
+            
             # Rename the file
             os.rename(source_path, dest_path)
+            
+            # Record this rename operation in our history
+            self.renamed_files[original_filename] = new_name
             
             # Mark the name as used
             self.used_names.add(name)
@@ -375,7 +428,10 @@ class ImageRenamerApp:
             # Update the button appearance
             if name in self.name_buttons:
                 self.name_buttons[name].config(bg="red", fg="white")
-                
+            
+            # Refresh directory contents to get updated file list
+            self.refresh_directory()
+            
             # Go to next image
             self.current_index += 1
             
@@ -406,7 +462,13 @@ class ImageRenamerApp:
         """Go to the previous image"""
         if not self.image_files or self.current_index <= 0:
             return
+        
+        # Refresh directory if needed
+        if not self.refresh_directory():
+            messagebox.showerror("Error", "Unable to refresh directory contents.")
+            return
             
+        # Move to previous image
         self.current_index -= 1
         self.display_current_image()
     
@@ -415,6 +477,13 @@ class ImageRenamerApp:
         self.current_index = 0
         self.used_names = set()  # Clear used names
         self.reset_button_appearances()
+        
+        # Reset navigation tracking
+        self.file_history = self.image_files.copy()
+        self.renamed_files = {}
+        
+        # Refresh directory contents
+        self.refresh_directory()
         
         if self.image_dir and self.image_files:
             self.scan_existing_names()
