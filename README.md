@@ -70,10 +70,13 @@ To create a standalone Windows executable:
 Edit the `namelist.txt` file to include your desired names, with one name per line:
 
 ```
-John
-Sarah
-Michael
-Jessica
+Corner - LF
+Corner - RF
+Corner - RR
+Corner - LR
+Tag
+Dash VIN
+Door VIN
 ```
 
 You can create multiple name list files and specify which one to use by default in `config.ini`.
