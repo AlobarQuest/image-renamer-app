@@ -16,6 +16,7 @@ The Image Renamer Tool is designed to make renaming multiple image files quick a
    - Click the "Select Image Directory" button at the top left
    - Navigate to the folder containing your images
    - The program will automatically detect any already-used names and mark those buttons red
+   - The original order of images is preserved throughout your session
 
 4. **Rename Images:**
    - The first image will appear in the main window
@@ -30,6 +31,7 @@ The Image Renamer Tool is designed to make renaming multiple image files quick a
    - Next button is disabled when you're at the last image
    - Click "Don't Rename" to skip the current image without renaming it
    - You can navigate back through images even after renaming them
+   - Images always appear in their original order, regardless of name changes
 
 6. **Complete:**
    - When all images have been processed, you'll see a completion message
@@ -48,6 +50,12 @@ The Image Renamer Tool is designed to make renaming multiple image files quick a
   - Visual tracking (red buttons) of which names have been used
   - Automatic handling of duplicate filenames by adding numbers (e.g., Name_1.jpg)
   - Directory contents automatically refresh after each rename operation
+
+- **Consistent Display Order:**
+  - Images maintain their original order throughout the session
+  - Renamed files don't change position in the sequence
+  - Order is preserved exactly as files appeared when directory was first opened
+  - Perfect for chronological sequences or processing files in a specific order
 
 - **Robust Navigation:**
   - Previous/Next buttons for easy browsing through images
@@ -86,6 +94,7 @@ The Image Renamer Tool is designed to make renaming multiple image files quick a
 - **Use descriptive names** that will help you identify images later
 - **For batch processing**, consider creating specific name lists for different image sets
 - **Use the back navigation** to review and correct any naming mistakes
+- **For chronological sequences**, the preserved order feature ensures images remain in their original sequence
 
 ## Troubleshooting
 
@@ -101,8 +110,16 @@ This tool is designed to be straightforward and efficient for quickly renaming b
 
 ### Recent Improvements
 
-The latest version includes significant improvements to navigation functionality:
-- Robust error handling for file operations
-- Better tracking of file history during renaming
-- Improved navigation experience with disabled buttons at boundaries
-- Automatic directory refreshing to ensure accuracy
+The latest version includes significant improvements:
+
+- **Preserved Display Order:**
+  - Images remain in their original sequence throughout your session
+  - Perfect for chronological photos where order matters
+  - Renamed files stay in their original position in the sequence
+  - No more shuffling of images when navigating after renaming
+
+- **Navigation Enhancements:**
+  - Robust error handling for file operations
+  - Better tracking of file history during renaming
+  - Improved navigation experience with disabled buttons at boundaries
+  - Automatic directory refreshing to ensure accuracy
