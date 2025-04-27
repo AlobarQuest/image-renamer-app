@@ -12,16 +12,16 @@ class ImageRenamerApp:
         self.root.geometry("900x700")
         
         # Initialize variables
-        self.image_files = []
+        self.image_files = []           # Current directory listing
+        self.display_order = []         # Fixed order of images
+        self.filename_map = {}          # Maps display indexes to current filenames
         self.current_index = 0
         self.image_dir = ""
         self.names = []
         self.original_names = []
         self.default_dir = ""
         self.used_names = set()
-        self.name_buttons = {}  # Dictionary to store references to buttons
-        self.file_history = []  # Track original filenames for navigation
-        self.renamed_files = {}  # Map original filenames to new names
+        self.name_buttons = {}          # Dictionary to store references to buttons
         
         # Load configuration
         self.load_config()
@@ -157,10 +157,35 @@ class ImageRenamerApp:
             self.image_files = [f for f in os.listdir(self.image_dir) 
                                if os.path.isfile(os.path.join(self.image_dir, f)) 
                                and f.lower().endswith(image_extensions)]
+            
+            # Update filename map with current filenames
+            self.update_filename_map()
+            
             return True
         except Exception as e:
             print(f"Error refreshing directory: {str(e)}")
             return False
+    
+    def update_filename_map(self):
+        """Update the filename map to reflect current filenames while preserving order"""
+        if not self.display_order:
+            return
+            
+        # Build a set of files in the directory for faster lookup
+        files_set = set(self.image_files)
+        
+        # Update the filename map with current files
+        for i, old_filename in enumerate(self.display_order):
+            # If the old filename exists in the directory, keep it
+            if old_filename in files_set:
+                self.filename_map[i] = old_filename
+            # Otherwise, look for renamed versions in the directory
+            elif i in self.filename_map and self.filename_map[i] in files_set:
+                # Current mapping is still valid
+                continue
+            else:
+                # If we can't find the file, mark it as None
+                self.filename_map[i] = None
     
     def load_images(self):
         """Load all image files from the selected directory"""
@@ -173,11 +198,13 @@ class ImageRenamerApp:
             messagebox.showinfo("No Images", "No image files found in the selected directory.")
             return
         
-        self.current_index = 0
+        # Save the original display order
+        self.display_order = self.image_files.copy()
         
-        # Reset navigation history
-        self.file_history = self.image_files.copy()
-        self.renamed_files = {}
+        # Initialize the filename map
+        self.filename_map = {i: filename for i, filename in enumerate(self.display_order)}
+        
+        self.current_index = 0
         
         # Reset used names when loading new images
         self.used_names = set()
@@ -314,14 +341,25 @@ class ImageRenamerApp:
             if name in self.name_buttons:
                 self.name_buttons[name].config(bg="red", fg="white")
     
+    def get_current_filename(self):
+        """Get the current filename based on display order index"""
+        if self.current_index in self.filename_map and self.filename_map[self.current_index] is not None:
+            return self.filename_map[self.current_index]
+        else:
+            return None
+    
     def display_current_image(self):
         """Display the current image"""
-        if not self.image_files or self.current_index >= len(self.image_files):
+        if not self.display_order or self.current_index >= len(self.display_order):
             messagebox.showinfo("Complete", "All images have been processed.")
             return
         
         # Get current filename
-        current_filename = self.image_files[self.current_index]
+        current_filename = self.get_current_filename()
+        
+        if not current_filename:
+            messagebox.showinfo("Error", f"Unable to find image at position {self.current_index + 1}.")
+            return
         
         # Update filename label
         self.filename_label.config(text=f"Current File Name is: {current_filename}")
@@ -332,7 +370,7 @@ class ImageRenamerApp:
         
         # Update status
         self.status_label.config(
-            text=f"Image {self.current_index + 1} of {len(self.image_files)}: {current_filename}"
+            text=f"Image {self.current_index + 1} of {len(self.display_order)}: {current_filename}"
         )
         
         # Update nav button states
@@ -347,7 +385,7 @@ class ImageRenamerApp:
             self.prev_btn.config(state=tk.NORMAL)
         
         # Enable/disable next button
-        if self.current_index >= len(self.image_files) - 1:
+        if self.current_index >= len(self.display_order) - 1:
             self.next_btn.config(state=tk.DISABLED)
         else:
             self.next_btn.config(state=tk.NORMAL)
@@ -393,10 +431,15 @@ class ImageRenamerApp:
     
     def rename_image(self, name):
         """Rename the current image with the selected name"""
-        if not self.image_files or self.current_index >= len(self.image_files):
+        if not self.display_order or self.current_index >= len(self.display_order):
             return
             
-        current_file = self.image_files[self.current_index]
+        # Get current filename
+        current_file = self.get_current_filename()
+        if not current_file:
+            messagebox.showerror("Error", "Could not find the current file.")
+            return
+            
         file_ext = os.path.splitext(current_file)[1]
         new_name = f"{name}{file_ext}"
         
@@ -413,14 +456,8 @@ class ImageRenamerApp:
             dest_path = os.path.join(self.image_dir, new_name)
         
         try:
-            # Store the original filename for navigation history
-            original_filename = self.image_files[self.current_index]
-            
             # Rename the file
             os.rename(source_path, dest_path)
-            
-            # Record this rename operation in our history
-            self.renamed_files[original_filename] = new_name
             
             # Mark the name as used
             self.used_names.add(name)
@@ -429,14 +466,17 @@ class ImageRenamerApp:
             if name in self.name_buttons:
                 self.name_buttons[name].config(bg="red", fg="white")
             
-            # Refresh directory contents to get updated file list
+            # Update the filename map
+            self.filename_map[self.current_index] = new_name
+            
+            # Refresh the directory to keep internal structures in sync
             self.refresh_directory()
             
             # Go to next image
             self.current_index += 1
             
             # Display next image or show completion message
-            if self.current_index < len(self.image_files):
+            if self.current_index < len(self.display_order):
                 self.display_current_image()
             else:
                 messagebox.showinfo("Complete", "All images have been processed.")
@@ -447,12 +487,12 @@ class ImageRenamerApp:
     
     def skip_image(self):
         """Skip the current image without renaming"""
-        if not self.image_files or self.current_index >= len(self.image_files):
+        if not self.display_order or self.current_index >= len(self.display_order):
             return
             
         self.current_index += 1
         
-        if self.current_index < len(self.image_files):
+        if self.current_index < len(self.display_order):
             self.display_current_image()
         else:
             messagebox.showinfo("Complete", "All images have been processed.")
@@ -460,13 +500,11 @@ class ImageRenamerApp:
     
     def previous_image(self):
         """Go to the previous image"""
-        if not self.image_files or self.current_index <= 0:
+        if not self.display_order or self.current_index <= 0:
             return
         
-        # Refresh directory if needed
-        if not self.refresh_directory():
-            messagebox.showerror("Error", "Unable to refresh directory contents.")
-            return
+        # Refresh directory to make sure our file mappings are current
+        self.refresh_directory()
             
         # Move to previous image
         self.current_index -= 1
@@ -478,14 +516,10 @@ class ImageRenamerApp:
         self.used_names = set()  # Clear used names
         self.reset_button_appearances()
         
-        # Reset navigation tracking
-        self.file_history = self.image_files.copy()
-        self.renamed_files = {}
-        
         # Refresh directory contents
         self.refresh_directory()
         
-        if self.image_dir and self.image_files:
+        if self.image_dir and self.display_order:
             self.scan_existing_names()
             self.display_current_image()
 
@@ -499,9 +533,11 @@ if __name__ == "__main__":
     
     # Add window resize event to redisplay image on resize
     def on_resize(event):
-        if hasattr(app, 'current_index') and app.image_files and app.current_index < len(app.image_files):
-            image_path = os.path.join(app.image_dir, app.image_files[app.current_index])
-            app.display_image(image_path)
+        if hasattr(app, 'current_index') and app.display_order and app.current_index < len(app.display_order):
+            current_file = app.get_current_filename()
+            if current_file:
+                image_path = os.path.join(app.image_dir, current_file)
+                app.display_image(image_path)
     
     root.bind("<Configure>", on_resize)
     
