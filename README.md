@@ -1,71 +1,95 @@
-# Image Renamer Tool
+# Image Renamer App
 
-A Python tool for quickly renaming image files using a predefined list of names.
+![GitHub last commit](https://img.shields.io/github/last-commit/AlobarQuest/image-renamer-app)
+![License](https://img.shields.io/github/license/AlobarQuest/image-renamer-app)
 
-## Features
+A Python desktop application for efficiently renaming batches of images using a predefined list of names.
 
-- Load and display images from any directory
-- Rename images with names from a customizable list
-- Fast performance with buttons created only once at startup
-- Automatic detection of already-used names
-- Navigation through images with previous/next buttons
-- Visual feedback showing which names have been used (red buttons)
-- Configurable default directories and name lists
+## 🔍 Overview
 
-## Setup Instructions
+Image Renamer App is a streamlined tool designed to make renaming multiple image files quick and efficient. It was created to assist with organizing field appraisal photos but can be used for any scenario requiring consistent image naming from a predefined list.
 
-1. Make sure you have Python installed (3.7 or higher recommended)
-2. Install required libraries by running:
+The application provides a simple, visual interface that allows you to quickly cycle through images and assign them standardized names with a single click.
+
+## ✨ Key Features
+
+- **Fast Batch Renaming**: Quickly rename multiple images with just one click per image
+- **Visual Image Preview**: View each image while deciding on a name
+- **Predefined Name List**: Load and use a customizable list of standard names
+- **Used Name Tracking**: Visual indicators show which names have already been used (red buttons)
+- **Preserved Image Order**: Images maintain their original order throughout your session
+- **Navigation Controls**: Easily move back and forth between images
+- **Automatic Numbering**: Adds numbers to duplicate names (e.g., "Dashboard_1", "Dashboard_2")
+- **Configuration System**: Save default directories and name lists between sessions
+
+## 📋 Requirements
+
+- Python 3.7 or higher
+- Pillow (PIL Fork) 9.0.0 or higher
+
+## 🚀 Installation
+
+### From Source
+
+1. Clone the repository:
    ```
-   pip install pillow
+   git clone https://github.com/AlobarQuest/image-renamer-app.git
+   cd image-renamer-app
    ```
-3. Run the tool using:
+
+2. Install the required dependencies:
+   ```
+   pip install -r requirements.txt
+   ```
+
+3. Run the application:
    ```
    python image_renamer.py
    ```
 
-## Configuration
+### Creating a Windows Executable
 
-The tool supports automatic configuration through a `config.ini` file:
+1. Run the included batch file:
+   ```
+   build_executable.bat
+   ```
+   
+This will:
+- Install PyInstaller if needed
+- Build a standalone executable
+- Place it in the `dist` folder
 
-```
+After building, copy `config.ini` and `namelist.txt` to the same directory as the executable.
+
+## 📖 Usage
+
+### Quick Start
+
+1. **Launch the application**
+2. **Select an image directory** using the "Select Image Directory" button
+3. **Browse through images** using the arrow buttons
+4. **Rename each image** by clicking on the appropriate name button
+5. **Skip images** you don't want to rename using the "Don't Rename" button
+
+### Workflow Details
+
+- The program automatically loads the name list specified in your config.ini file
+- All name buttons appear at the bottom of the window in alphabetical order
+- When a name has been used, its button turns red with white text (but remains available for reuse)
+- Original image order is preserved throughout your session
+- You can navigate back to review or change previous renaming decisions
+
+## ⚙️ Configuration
+
+The application uses a `config.ini` file to store default settings:
+
+```ini
 [Settings]
-default_image_directory=C:\Path\To\Your\Images
+default_image_directory=C:\Path\To\Images
 default_namelist=namelist.txt
 ```
 
-- `default_image_directory`: The directory that will open by default when selecting images
-- `default_namelist`: The name list file to load at startup (must be in the same directory as the script)
-
-## Creating an Executable
-
-To create a standalone Windows executable:
-
-1. Install PyInstaller:
-   ```
-   pip install pyinstaller
-   ```
-2. Run from the command prompt:
-   ```
-   pyinstaller --onefile --windowed --name ImageRenamer image_renamer.py
-   ```
-3. Find the executable in the `dist` folder
-4. Copy `config.ini` and `namelist.txt` to the same directory as the executable
-
-## Usage
-
-1. Run the tool (either `python image_renamer.py` or the executable)
-2. The program automatically loads the default name list file specified in config.ini
-3. All name buttons are created at startup for maximum performance
-4. The program scans the selected directory for files already named with names from your list and marks those buttons in red
-5. Click "Select Image Directory" to choose a folder with images (starts in the directory specified in config.ini)
-6. For each image:
-   - Click a name button to rename the image and move to the next
-   - Use the arrow buttons to navigate between images
-   - Click "Don't Rename" to move to the next image without renaming
-7. When a name has been used, its button turns red with white text but remains available for reuse
-
-## Customizing Names
+### Customizing the Name List
 
 Edit the `namelist.txt` file to include your desired names, with one name per line:
 
@@ -75,12 +99,33 @@ Corner - RF
 Corner - RR
 Corner - LR
 Tag
-Dash VIN
-Door VIN
+VIN
 ```
 
 You can create multiple name list files and specify which one to use by default in `config.ini`.
 
-## License
+## 🔧 Tips for Effective Use
 
-This project is open source and available under the MIT License.
+- **Prepare your name list ahead of time** to make the renaming process smoother
+- **Use descriptive names** that will help you identify images later
+- **For batch processing**, consider creating specific name lists for different image sets
+- **Use the back navigation** to review and correct any naming mistakes
+- **For chronological sequences**, the preserved order feature ensures images remain in their original sequence
+
+## 📝 Documentation
+
+For detailed usage instructions, see the [How To Use Guide](HOW_TO_USE.md) included in this repository.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🙏 Acknowledgments
+
+- Created by Devon (AlobarQuest)
+- Built using Python and Tkinter
+- Developed to streamline field appraisal workflows
