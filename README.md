@@ -3,7 +3,7 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/AlobarQuest/image-renamer-app)
 ![License](https://img.shields.io/github/license/AlobarQuest/image-renamer-app)
 
-A Python desktop application for efficiently renaming batches of images using a predefined list of names.
+A Python desktop application for efficiently renaming batches of vehicle inspection images using a predefined list of names.
 
 ## 🔍 Overview
 

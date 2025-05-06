@@ -1,0 +1,6 @@
+@echo off
+echo Fetching latest changes from GitHub...
+git fetch origin
+echo Checking out feature branch...
+git checkout feature/visual-changes-ai
+echo Done!
